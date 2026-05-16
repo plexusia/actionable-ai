@@ -30,12 +30,21 @@ git remote add origin https://github.com/VOTRE_ORG/actionable-ai.git
 git push -u origin main
 ```
 
-3. Sur GitHub : **Settings → Pages → Build and deployment → Source : GitHub Actions**.
-4. Après le workflow vert, la keynote est en ligne à :
+3. **Settings → Pages → Build and deployment**
+   - **Source** : choisissez **GitHub Actions** (pas « Deploy from a branch »).
+   - GitHub affiche alors des **modèles de workflow** : **ignorez-les** — le fichier `.github/workflows/deploy-pages.yml` est déjà dans le dépôt. Fermez la fenêtre ou cliquez sur *Skip* s’il y en a un.
 
-`https://VOTRE_ORG.github.io/actionable-ai/`
+4. Lancez le déploiement une première fois :
+   - Onglet **Actions** → workflow **« Deploy keynote to GitHub Pages »**
+   - Bouton **Run workflow** → **Run workflow** (branche `main`).
 
-(Remplacez `actionable-ai` par le nom exact du dépôt.)
+5. Si GitHub demande d’**approuver l’environnement** `github-pages`, validez la demande (bouton *Review deployments* / *Approve*).
+
+6. Quand le job est vert ✅, la keynote est en ligne :
+
+**https://plexusia.github.io/actionable-ai/**
+
+(Format : `https://COMPTE.github.io/NOM_DU_REPO/`)
 
 ## Navigation
 
