@@ -30,6 +30,34 @@
   pointer-events: none;
 }
 
+.deck-sound-btn {
+  position: fixed;
+  top: var(--deck-stage-y);
+  right: var(--deck-stage-x);
+  z-index: 20;
+  padding: 0.55em 1em;
+  border: 1px solid rgba(155, 176, 196, 0.45);
+  border-radius: 999px;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--deck-tertiary);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 200ms, color 200ms, background 200ms;
+}
+.deck-sound-btn:hover {
+  border-color: rgba(155, 176, 196, 0.75);
+  color: var(--deck-primary);
+}
+.deck-sound-btn--on {
+  border-color: rgba(155, 176, 196, 0.65);
+  color: var(--deck-primary);
+}
+
 .deck-stage {
   position: relative;
   z-index: 1;

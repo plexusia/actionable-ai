@@ -7,17 +7,31 @@ import "./deck.css";
 import { assetUrl } from "@/lib/assets";
 
 const INTRO_OUTRO_TRACK = assetUrl("intro-outro.mp3");
+const SOUNDTRACK_SLIDES = new Set([0, slides.length - 1]);
 
 export function Deck() {
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
+  const [soundPlaying, setSoundPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const soundtrackWantedRef = useRef(false);
 
-  const playSoundtrack = useCallback(() => {
+  /** Must run synchronously inside a click/key handler (browser autoplay policy). */
+  const startSoundtrack = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    void audio.play().catch(() => {});
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      void playPromise
+        .then(() => setSoundPlaying(true))
+        .catch(() => setSoundPlaying(false));
+    }
+  }, []);
+
+  const stopSoundtrack = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setSoundPlaying(false);
   }, []);
 
   const go = useCallback(
@@ -25,12 +39,13 @@ export function Deck() {
       const next = Math.max(0, Math.min(slides.length - 1, n));
       setDir(next > i ? 1 : -1);
       setI(next);
-      if (next === 0 || next === slides.length - 1) {
-        soundtrackWantedRef.current = true;
-        queueMicrotask(playSoundtrack);
+      if (SOUNDTRACK_SLIDES.has(next)) {
+        startSoundtrack();
+      } else {
+        stopSoundtrack();
       }
     },
-    [i, playSoundtrack],
+    [i, startSoundtrack, stopSoundtrack],
   );
 
   useEffect(() => {
@@ -77,27 +92,11 @@ export function Deck() {
   const isClosing = i === slides.length - 1;
 
   useEffect(() => {
-    soundtrackWantedRef.current = isOpening || isClosing;
-    if (!soundtrackWantedRef.current) {
-      audioRef.current?.pause();
-      return;
-    }
-    playSoundtrack();
-    return () => audioRef.current?.pause();
-  }, [i, isOpening, isClosing, playSoundtrack]);
+    if (!isOpening && !isClosing) stopSoundtrack();
+  }, [i, isOpening, isClosing, stopSoundtrack]);
 
-  useEffect(() => {
-    const unlock = () => {
-      if (soundtrackWantedRef.current) playSoundtrack();
-    };
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-  }, [playSoundtrack]);
   const proximaSlide = current.eyebrow === "Proxima OS";
+  const showSoundtrack = isOpening || isClosing;
   const activeSection = slideSections.findIndex((s) => i >= s.start && i <= s.end);
   const modelPlacement = isOpening
     ? "center"
@@ -115,8 +114,28 @@ export function Deck() {
         src={INTRO_OUTRO_TRACK}
         loop
         preload="auto"
+        playsInline
+        onPlaying={() => setSoundPlaying(true)}
+        onPause={() => setSoundPlaying(false)}
+        onEnded={() => setSoundPlaying(false)}
         aria-hidden
       />
+      {showSoundtrack && (
+        <button
+          type="button"
+          className={`deck-sound-btn${soundPlaying ? " deck-sound-btn--on" : ""}`}
+          aria-pressed={soundPlaying}
+          aria-label={soundPlaying ? "Couper la bande-son" : "Activer la bande-son"}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (soundPlaying) stopSoundtrack();
+            else startSoundtrack();
+          }}
+        >
+          {soundPlaying ? "Son activé" : "Activer le son"}
+        </button>
+      )}
       <Scene slideIndex={i} modelPlacement={modelPlacement} />
       <div className="deck-progress" style={{ width: `${progress}%` }} />
       <div className="deck-eyebrow-fixed">{current.eyebrow}</div>
