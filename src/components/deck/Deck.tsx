@@ -12,6 +12,7 @@ const SOUNDTRACK_SLIDES = new Set([0, slides.length - 1]);
 export function Deck() {
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundPlaying, setSoundPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -27,7 +28,7 @@ export function Deck() {
     }
   }, []);
 
-  const stopSoundtrack = useCallback(() => {
+  const pauseSoundtrack = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.pause();
@@ -40,12 +41,12 @@ export function Deck() {
       setDir(next > i ? 1 : -1);
       setI(next);
       if (SOUNDTRACK_SLIDES.has(next)) {
-        startSoundtrack();
+        if (soundEnabled) startSoundtrack();
       } else {
-        stopSoundtrack();
+        pauseSoundtrack();
       }
     },
-    [i, startSoundtrack, stopSoundtrack],
+    [i, soundEnabled, startSoundtrack, pauseSoundtrack],
   );
 
   useEffect(() => {
@@ -92,8 +93,8 @@ export function Deck() {
   const isClosing = i === slides.length - 1;
 
   useEffect(() => {
-    if (!isOpening && !isClosing) stopSoundtrack();
-  }, [i, isOpening, isClosing, stopSoundtrack]);
+    if (!isOpening && !isClosing) pauseSoundtrack();
+  }, [i, isOpening, isClosing, pauseSoundtrack]);
 
   const proximaSlide = current.eyebrow === "Proxima OS";
   const showSoundtrack = isOpening || isClosing;
@@ -107,7 +108,12 @@ export function Deck() {
         : "side";
 
   return (
-    <div className="deck-root">
+    <motion.div
+      className="deck-root"
+      onPointerDownCapture={() => {
+        if (showSoundtrack && soundEnabled && !soundPlaying) startSoundtrack();
+      }}
+    >
       <audio
         ref={audioRef}
         className="deck-soundtrack"
@@ -123,17 +129,22 @@ export function Deck() {
       {showSoundtrack && (
         <button
           type="button"
-          className={`deck-sound-btn${soundPlaying ? " deck-sound-btn--on" : ""}`}
-          aria-pressed={soundPlaying}
-          aria-label={soundPlaying ? "Couper la bande-son" : "Activer la bande-son"}
+          className={`deck-sound-btn${soundEnabled ? " deck-sound-btn--on" : ""}`}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? "Couper la bande-son" : "Réactiver la bande-son"}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
-            if (soundPlaying) stopSoundtrack();
-            else startSoundtrack();
+            if (soundEnabled) {
+              setSoundEnabled(false);
+              pauseSoundtrack();
+            } else {
+              setSoundEnabled(true);
+              startSoundtrack();
+            }
           }}
         >
-          {soundPlaying ? "Son activé" : "Activer le son"}
+          {soundEnabled ? "Son activé" : "Activer le son"}
         </button>
       )}
       <Scene slideIndex={i} modelPlacement={modelPlacement} />
@@ -229,6 +240,6 @@ export function Deck() {
           ›
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
