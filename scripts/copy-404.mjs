@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, renameSync } from "node:fs";
+import { copyFileSync, existsSync, renameSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const outDir = resolve("dist-pages");
@@ -18,4 +18,5 @@ if (!existsSync(index)) {
 }
 
 copyFileSync(index, resolve(outDir, "404.html"));
-console.log("copy-404: wrote dist-pages/404.html for GitHub Pages SPA routing");
+writeFileSync(resolve(outDir, ".nojekyll"), "");
+console.log("copy-404: wrote dist-pages/404.html and .nojekyll for GitHub Pages");
