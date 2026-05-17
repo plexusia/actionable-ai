@@ -218,7 +218,7 @@ export const slides: Slide[] = [
             "Agents autonomes",
             [
               { label: "Manus", href: "https://www.manus.im" },
-              { label: "DeepAgent", href: "https://www.deepagent.ai" },
+              { label: "DeepAgent", href: "https://apps.abacus.ai/" },
               { label: "Genspark", href: "https://www.genspark.ai" },
               { label: "Dust", href: "https://dust.tt" },
             ],
