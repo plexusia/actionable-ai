@@ -31,14 +31,11 @@ git push -u origin main
 ```
 
 3. **Settings → Pages → Build and deployment**
-   - **Source** : choisissez **GitHub Actions** (pas « Deploy from a branch »).
-   - GitHub affiche alors des **modèles de workflow** : **ignorez-les** — le fichier `.github/workflows/deploy-pages.yml` est déjà dans le dépôt. Fermez la fenêtre ou cliquez sur *Skip* s’il y en a un.
+   - **Source** : **Deploy from a branch**
+   - **Branch** : `gh-pages` / `/ (root)`
+   - (Ne pas laisser « main » : sinon GitHub affiche le README en Jekyll au lieu de la keynote.)
 
-4. Lancez le déploiement une première fois :
-   - Onglet **Actions** → workflow **« Deploy keynote to GitHub Pages »**
-   - Bouton **Run workflow** → **Run workflow** (branche `main`).
-
-5. Si GitHub demande d’**approuver l’environnement** `github-pages`, validez la demande (bouton *Review deployments* / *Approve*).
+4. Après le premier push sur `main`, le workflow crée la branche `gh-pages` automatiquement. Sinon : **Actions** → **Deploy keynote to GitHub Pages** → **Run workflow**.
 
 6. Quand le job est vert ✅, la keynote est en ligne :
 
